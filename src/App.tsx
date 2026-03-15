@@ -21,7 +21,7 @@ import {
 import { useState, useEffect } from "react";
 import { GoogleGenAI } from "@google/genai";
 
-const WHATSAPP_LINK = "https://l.instagram.com/?u=https%3A%2F%2Fwa.me%2F5551996036357%3Futm_source%3Dig%26utm_medium%3Dsocial%26utm_content%3Dlink_in_bio%26fbclid%3DPAZXh0bgNhZW0CMTEAc3J0YwZhcHBfaWQMMjU2MjgxMDQwNTU4AAGnVEudPLt-f6YHp5OpjxWj16dk96c8fO9RA4zTJXMFp_rQiOft6QD0wuaSHzE_aem_rD3Nd6b6qk9YmZpfvjB2Kw&e=AT7HI9u_4aWKh-PUbwNVTyYO-8mfl0EPmfAsVTBg_gUPyLi9NQ1GNTWa5w6vDBb-ccesZemQ4Qa91347VW9e-5IksfkY3eh1awou2XSONHbz96X_mcPo1Tl3Hw";
+const WHATSAPP_LINK = "https://api.whatsapp.com/send/?phone=5551996036357&text&type=phone_number&app_absent=0&utm_source=ig";
 const INSTAGRAM_LINK = "https://www.instagram.com/restaurantefamiliazanatta";
 const MAPS_LINK = "https://maps.app.goo.gl/jp4v56zLWpgvk6CU9";
 
