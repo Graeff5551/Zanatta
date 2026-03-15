@@ -27,12 +27,19 @@ const MAPS_LINK = "https://maps.app.goo.gl/jp4v56zLWpgvk6CU9";
 
 const INITIAL_IMAGES = {
   hero: "https://drive.google.com/thumbnail?id=10__2JRCRJyG2OX9oaQkNCgtRQK-Eu8tF&sz=w1600",
+  heroConfig: {
+    scale: 1,
+    x: 50,
+    y: 50,
+    maxWidth: 100,
+    aspect: 56.25 // 16:9
+  },
   about1: "https://drive.google.com/thumbnail?id=1sCawj7dteafr8kDJ0EpXtJBHtd1WaFab&sz=w1600",
   about2: "https://drive.google.com/thumbnail?id=1XA6Lo-rZLG6TfQqE4ki7ytGc8KEVxY5i&sz=w1600",
   buffet1: "https://drive.google.com/thumbnail?id=1cewxEmitlBU6PHByMPXPcL6FlzUJCAog&sz=w1600",
   buffet2: "https://drive.google.com/thumbnail?id=1N-ED25XOdIj2M80KZQ90h8mUkaWq47AK&sz=w1600",
   buffet3: "https://drive.google.com/thumbnail?id=15x7f69qAlwVSmdorlxU1yzmcRIG2wnlI&sz=w1600",
-  buffet4: "https://images.unsplash.com/photo-1473093226795-af9932fe5856?auto=format&fit=crop&q=80&w=1600",
+  buffet4: "https://images.unsplash.com/photo-1563379926898-05f4575a45d8?auto=format&fit=crop&q=80&w=1600",
   gallery: [
     "https://drive.google.com/thumbnail?id=1BjTHwQqQ4gZUfs_WqIbtkM8hCUoeqS0z&sz=w1600",
     "https://drive.google.com/thumbnail?id=1a6l4vfJH4JFlfVkKwkeuB6iS2IvWDfko&sz=w1600",
@@ -44,8 +51,20 @@ const INITIAL_IMAGES = {
 export default function App() {
   // Load images from localStorage if they exist, otherwise use INITIAL_IMAGES
   const [images, setImages] = useState(() => {
-    const saved = localStorage.getItem('zanatta_images_v3');
-    return saved ? JSON.parse(saved) : INITIAL_IMAGES;
+    const saved = localStorage.getItem('zanatta_images_v7');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      // Ensure heroConfig exists for backward compatibility
+      if (!parsed.heroConfig) {
+        parsed.heroConfig = INITIAL_IMAGES.heroConfig;
+      }
+      if (parsed.heroConfig.maxWidth === undefined) {
+        parsed.heroConfig.maxWidth = INITIAL_IMAGES.heroConfig.maxWidth;
+        parsed.heroConfig.aspect = INITIAL_IMAGES.heroConfig.aspect;
+      }
+      return parsed;
+    }
+    return INITIAL_IMAGES;
   });
   
   const [isEditing, setIsEditing] = useState(false);
@@ -53,12 +72,13 @@ export default function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [editingKey, setEditingKey] = useState<string | { type: 'gallery', index: number } | null>(null);
   const [tempUrl, setTempUrl] = useState("");
+  const [tempConfig, setTempConfig] = useState(INITIAL_IMAGES.heroConfig);
   const [isEnhancing, setIsEnhancing] = useState(false);
   const [showKeyPrompt, setShowKeyPrompt] = useState(false);
 
   // Save to localStorage whenever images change
   useEffect(() => {
-    localStorage.setItem('zanatta_images_v3', JSON.stringify(images));
+    localStorage.setItem('zanatta_images_v7', JSON.stringify(images));
   }, [images]);
 
   useEffect(() => {
@@ -157,7 +177,11 @@ export default function App() {
     const finalUrl = formatImageUrl(tempUrl);
 
     if (typeof editingKey === 'string') {
-      setImages(prev => ({ ...prev, [editingKey]: finalUrl }));
+      const update: any = { [editingKey]: finalUrl };
+      if (editingKey === 'hero') {
+        update.heroConfig = tempConfig;
+      }
+      setImages(prev => ({ ...prev, ...update }));
     } else {
       const newGallery = [...images.gallery];
       newGallery[editingKey.index] = finalUrl;
@@ -244,6 +268,9 @@ export default function App() {
             e.stopPropagation();
             setEditingKey(galleryIndex !== undefined ? { type: 'gallery', index: galleryIndex } : id);
             setTempUrl(galleryIndex !== undefined ? images.gallery[galleryIndex] : (images as any)[id]);
+            if (id === 'hero' && galleryIndex === undefined) {
+              setTempConfig(images.heroConfig || INITIAL_IMAGES.heroConfig);
+            }
           }}
           className="bg-brand-paper/90 backdrop-blur p-2 rounded-full shadow-lg hover:bg-brand-clay hover:text-brand-paper transition-all group"
           title="Editar link"
@@ -256,90 +283,6 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-brand-paper selection:bg-brand-olive selection:text-brand-paper">
-      {/* Admin Toggle removed as per user request */}
-
-      {/* Edit Modal */}
-      <AnimatePresence>
-        {editingKey && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[200] bg-brand-ink/80 backdrop-blur-sm flex items-center justify-center p-6"
-          >
-            <motion.div 
-              initial={{ scale: 0.9, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              className="bg-brand-paper w-full max-w-lg rounded-[2rem] p-10 shadow-2xl"
-            >
-              <h3 className="text-2xl font-serif mb-6">Alterar Link da Imagem</h3>
-              <p className="text-sm text-brand-ink/60 mb-6">
-                Cole o link da imagem abaixo. 
-                <span className="block mt-1 text-brand-olive font-medium">Links do Google Drive são convertidos automaticamente!</span>
-              </p>
-              
-              <div className="space-y-4 mb-8">
-                <input 
-                  type="text" 
-                  value={tempUrl}
-                  onChange={(e) => setTempUrl(e.target.value)}
-                  placeholder="https://exemplo.com/imagem.jpg"
-                  className="w-full bg-brand-ink/5 border-none rounded-xl p-4 focus:ring-2 focus:ring-brand-olive outline-none"
-                />
-                
-                <button 
-                  onClick={handleEnhanceWithAI}
-                  disabled={isEnhancing || !tempUrl}
-                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-bold bg-brand-clay/10 text-brand-clay hover:bg-brand-clay hover:text-brand-paper transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isEnhancing ? (
-                    <>
-                      <Loader2 size={18} className="animate-spin" />
-                      Melhorando com IA...
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles size={18} />
-                      Aumentar Resolução (IA)
-                    </>
-                  )}
-                </button>
-              </div>
-
-              {showKeyPrompt && (
-                <div className="mb-6 p-4 bg-brand-clay/5 border border-brand-clay/20 rounded-xl">
-                  <p className="text-xs text-brand-clay mb-3">Para usar a IA de alta resolução, você precisa selecionar uma chave de API paga do Google Cloud.</p>
-                  <button 
-                    onClick={handleSelectKey}
-                    className="text-xs font-bold underline hover:text-brand-ink transition-colors"
-                  >
-                    Selecionar Chave de API
-                  </button>
-                  <a href="https://ai.google.dev/gemini-api/docs/billing" target="_blank" rel="noopener noreferrer" className="block text-[10px] mt-2 opacity-60">
-                    Saiba mais sobre faturamento
-                  </a>
-                </div>
-              )}
-
-              <div className="flex gap-4">
-                <button 
-                  onClick={() => setEditingKey(null)}
-                  className="flex-1 py-4 rounded-full font-bold border border-brand-ink/10 hover:bg-brand-ink/5 transition-colors"
-                >
-                  Cancelar
-                </button>
-                <button 
-                  onClick={handleImageUpdate}
-                  className="flex-1 py-4 rounded-full font-bold bg-brand-olive text-brand-paper hover:bg-brand-ink transition-colors"
-                >
-                  Confirmar
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
       {/* Navigation */}
       <nav className={`fixed top-0 w-full z-50 transition-all duration-500 ${scrolled ? "bg-brand-paper/80 backdrop-blur-md py-4 shadow-sm" : "py-8"}`}>
         <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
@@ -427,16 +370,27 @@ export default function App() {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.3, duration: 1 }}
-              className="relative w-full max-w-4xl aspect-[16/9] mb-12"
+              className="relative w-full mx-auto mb-12"
+              style={{ 
+                maxWidth: `${images.heroConfig?.maxWidth ?? 100}%`,
+                paddingBottom: `${images.heroConfig?.aspect ?? 56.25}%`,
+                height: 0
+              }}
             >
               <div className="absolute inset-0 bg-brand-olive/10 rounded-[4rem] md:rounded-[10rem] rotate-2"></div>
               <EditButton id="hero" />
-              <img 
-                src={images.hero} 
-                alt="Buffet Zanatta"
-                className="relative w-full h-full object-cover rounded-[4rem] md:rounded-[10rem] shadow-2xl"
-                referrerPolicy="no-referrer"
-              />
+              <div className="absolute inset-0 overflow-hidden rounded-[4rem] md:rounded-[10rem] shadow-2xl">
+                <img 
+                  src={images.hero} 
+                  alt="Buffet Zanatta"
+                  className="w-full h-full object-cover transition-all duration-300"
+                  style={{
+                    transform: `scale(${images.heroConfig?.scale || 1})`,
+                    objectPosition: `${images.heroConfig?.x ?? 50}% ${images.heroConfig?.y ?? 50}%`
+                  }}
+                  referrerPolicy="no-referrer"
+                />
+              </div>
               <div className="absolute -bottom-10 -right-10 hidden lg:block">
                 <div className="bg-brand-paper p-8 rounded-full shadow-xl border border-brand-ink/5 flex flex-col items-center justify-center w-40 h-40">
                   <span className="text-3xl font-serif font-bold">100%</span>
