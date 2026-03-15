@@ -26,14 +26,16 @@ const INSTAGRAM_LINK = "https://www.instagram.com/restaurantefamiliazanatta";
 const MAPS_LINK = "https://maps.app.goo.gl/jp4v56zLWpgvk6CU9";
 
 const INITIAL_IMAGES = {
-  hero: "https://drive.google.com/thumbnail?id=1cewxEmitlBU6PHByMPXPcL6FlzUJCAog&sz=w1600",
+  hero: "https://drive.google.com/thumbnail?id=10__2JRCRJyG2OX9oaQkNCgtRQK-Eu8tF&sz=w1600",
   about1: "https://drive.google.com/thumbnail?id=1sCawj7dteafr8kDJ0EpXtJBHtd1WaFab&sz=w1600",
-  about2: "https://drive.google.com/thumbnail?id=1N-ED25XOdIj2M80KZQ90h8mUkaWq47AK&sz=w1600",
-  buffet1: "https://drive.google.com/thumbnail?id=15x7f69qAlwVSmdorlxU1yzmcRIG2wnlI&sz=w1600",
-  buffet2: "https://drive.google.com/thumbnail?id=13_l9LWgWhUK7jQeawZsZRvWIM_wZroFd&sz=w1600",
-  buffet3: "https://drive.google.com/thumbnail?id=1a6l4vfJH4JFlfVkKwkeuB6iS2IvWDfko&sz=w1600",
-  buffet4: "https://drive.google.com/thumbnail?id=1BjTHwQqQ4gZUfs_WqIbtkM8hCUoeqS0z&sz=w1600",
+  about2: "https://drive.google.com/thumbnail?id=1XA6Lo-rZLG6TfQqE4ki7ytGc8KEVxY5i&sz=w1600",
+  buffet1: "https://drive.google.com/thumbnail?id=1cewxEmitlBU6PHByMPXPcL6FlzUJCAog&sz=w1600",
+  buffet2: "https://drive.google.com/thumbnail?id=1N-ED25XOdIj2M80KZQ90h8mUkaWq47AK&sz=w1600",
+  buffet3: "https://drive.google.com/thumbnail?id=15x7f69qAlwVSmdorlxU1yzmcRIG2wnlI&sz=w1600",
+  buffet4: "https://images.unsplash.com/photo-1473093226795-af9932fe5856?auto=format&fit=crop&q=80&w=1600",
   gallery: [
+    "https://drive.google.com/thumbnail?id=1BjTHwQqQ4gZUfs_WqIbtkM8hCUoeqS0z&sz=w1600",
+    "https://drive.google.com/thumbnail?id=1a6l4vfJH4JFlfVkKwkeuB6iS2IvWDfko&sz=w1600",
     "https://drive.google.com/thumbnail?id=16H_rckDBlKP7vdiF2vbizCcyvvkE1Btl&sz=w1600",
     "https://drive.google.com/thumbnail?id=1sJgn6qVUXytPEwtbZK0qXJ-9yn2jGUKt&sz=w1600",
   ]
@@ -42,7 +44,7 @@ const INITIAL_IMAGES = {
 export default function App() {
   // Load images from localStorage if they exist, otherwise use INITIAL_IMAGES
   const [images, setImages] = useState(() => {
-    const saved = localStorage.getItem('zanatta_images');
+    const saved = localStorage.getItem('zanatta_images_v3');
     return saved ? JSON.parse(saved) : INITIAL_IMAGES;
   });
   
@@ -56,7 +58,7 @@ export default function App() {
 
   // Save to localStorage whenever images change
   useEffect(() => {
-    localStorage.setItem('zanatta_images', JSON.stringify(images));
+    localStorage.setItem('zanatta_images_v3', JSON.stringify(images));
   }, [images]);
 
   useEffect(() => {
