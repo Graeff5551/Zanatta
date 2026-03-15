@@ -288,7 +288,7 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
           <div className="flex items-center gap-12">
             <a href="#home" className="text-2xl font-serif font-bold tracking-tight">
-              ZANATTA<span className="text-brand-clay">.</span>
+              FAMÍLIA ZANATTA<span className="text-brand-clay">.</span>
             </a>
             <div className="hidden md:flex gap-8 text-xs uppercase tracking-widest font-medium opacity-60">
               <a href="#sobre" className="hover:opacity-100 transition-opacity">Sobre</a>
